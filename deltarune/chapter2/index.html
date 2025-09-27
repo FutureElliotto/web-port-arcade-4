@@ -1,14 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <base href="https://cdn.jsdelivr.net/gh/genizy/web-port@e4050217850b6643fd327fb94d5ee85843a1640d/deltarune/chapter2/">
-    <script>
-      // better debugging for me
-      const ogalert = window.alert;
-      window.alert = function(message) {
-        ogalert(document.querySelector('base')?.href.split("https://cdn.jsdelivr.net/gh/genizy/web-port@")[1]+"\n"+message)
-      };
-    </script>
+    <base href="https://cdn.jsdelivr.net/gh/FutureElliotto/web-port-arcade-4/deltarune/chapter2/">
     <meta charset="utf-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
@@ -337,13 +330,50 @@
     </style>
   </head>
   <body>
-    <canvas
-      class="emscripten"
-      id="canvas"
-      oncontextmenu="event.preventDefault()"
-      tabindex="-1"
-    >
-    </canvas>
+<canvas
+  class="emscripten"
+  id="canvas"
+  oncontextmenu="event.preventDefault()"
+  tabindex="0">
+</canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+
+  // Focus canvas automatically
+  function focusCanvas() {
+    canvas.focus({preventScroll:true});
+  }
+
+  window.addEventListener('load', focusCanvas);
+  canvas.addEventListener('click', focusCanvas);
+
+  // Refocus on keypress if lost focus
+  window.addEventListener('keydown', (e) => {
+    if (document.activeElement !== canvas) canvas.focus({preventScroll:true});
+  });
+
+  // Maintain strict 4:3 aspect ratio
+  function resizeCanvas() {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    let width = windowWidth;
+    let height = windowWidth * 3 / 4;
+
+    if (height > windowHeight) {
+      height = windowHeight;
+      width = height * 4 / 3;
+    }
+
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas(); // initial call
+</script>
+
     <div id="pauseMenuContainer" hidden>
       <div id="pauseMenuBorder">
         <div id="pauseMenu">
