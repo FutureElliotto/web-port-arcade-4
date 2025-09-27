@@ -8,10 +8,7 @@
     <link rel="icon" type="x-icon" href="favicon.png">
     <title>UNDERTALE YELLOW</title>
     <style>
-      @keyframes rotation {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
+      @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
       html, body {
         margin: 0;
@@ -29,252 +26,102 @@
         place-items: center;
       }
 
-      body.scrollingDisabled {
-        overflow: hidden;
-      }
+      body.scrollingDisabled { overflow: hidden; }
 
-      .emscripten {
-        padding-right: 0;
-        display: block;
-      }
+      .emscripten { padding-right: 0; display: block; text-align: center; font-family: "Lucida Console", Monaco, monospace; }
 
-      div.emscripten {
-        text-align: center;
-        font-family: "Lucida Console", Monaco, monospace;
-      }
-
-      /* The canvas must fill screen */
       canvas.emscripten,
       canvas.emscripten:fullscreen {
         display: block !important;
         background-color: black;
-        width: 100vw;
-        height: 100vh;
         transition: opacity 5s ease-in;
         opacity: 0;
         filter: blur(0) grayscale(0);
-        image-rendering: optimizeSpeed;             
-        image-rendering: -moz-crisp-edges;          
-        image-rendering: -webkit-optimize-contrast; 
-        image-rendering: -o-crisp-edges;            
-        image-rendering: pixelated;                 
-        -ms-interpolation-mode: nearest-neighbor;   
+        image-rendering: optimizeSpeed;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: -o-crisp-edges;
+        image-rendering: pixelated;
+        -ms-interpolation-mode: nearest-neighbor;
       }
 
-      canvas.active {
-        animation-name: fadeIn;
-        animation-duration: 2s;
-        opacity: 1;
-      }
+      canvas.active { animation-name: fadeIn; animation-duration: 2s; opacity: 1; }
+      canvas.paused { animation-name: blur; animation-duration: 0.5s; filter: blur(2px) grayscale(1); }
+      canvas.unpaused { animation-name: none; }
+      canvas.animatedSizeTransitions { transition: width 0.3s ease, height 0.3s ease; }
 
-      canvas.paused {
-        animation-name: blur;
-        animation-duration: 0.5s;
-        filter: blur(2px) grayscale(1);
-      }
+      @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+      @keyframes blur { 0% { filter: blur(0) grayscale(0); } 100% { filter: blur(2px) grayscale(1); } }
 
-      canvas.unpaused {
-        animation-name: none;
-      }
+      .spinner { height: 30px; width: 30px; animation: rotation 0.8s linear infinite; border: 5px solid #bdff00; border-top: 5px solid #719900; border-radius: 100%; }
 
-      canvas.animatedSizeTransitions {
-        transition: width 0.3s ease, height 0.3s ease;
-      }
-
-      @keyframes fadeIn {
-        0% { opacity: 0; }
-        100% { opacity: 1; }
-      }
-
-      @keyframes blur {
-        0% { filter: blur(0) grayscale(0); }
-        100% { filter: blur(2px) grayscale(1); }
-      }
-
-      .spinner {
-        height: 30px;
-        width: 30px;
-        animation: rotation 0.8s linear infinite;
-        border: 5px solid #bdff00;
-        border-top: 5px solid #719900;
-        border-radius: 100%;
-      }
-
-      #status {
-        display: inline-block;
-        vertical-align: top;
-        font-weight: bold;
-        color: white;
-      }
-
-      #progress {
-        width: 250px;
-        height: 10px;
-        -webkit-appearance: none;
-        appearance: none;
-        padding: 5px;
-      }
-
-      progress[value]::-webkit-progress-bar {
-        background-color: #8492a6;
-        height: 10px;
-        border-radius: 15px;
-      }
-
-      progress[value]::-webkit-progress-value {
-        background-image: -webkit-linear-gradient(left, #719900, #bdff00);
-        height: 10px;
-        border-radius: 15px;
-      }
+      #status { display: inline-block; vertical-align: top; font-weight: bold; color: white; }
+      #progress { width: 250px; height: 10px; -webkit-appearance: none; appearance: none; padding: 5px; }
+      progress[value]::-webkit-progress-bar { background-color: #8492a6; height: 10px; border-radius: 15px; }
+      progress[value]::-webkit-progress-value { background-image: -webkit-linear-gradient(left, #719900, #bdff00); height: 10px; border-radius: 15px; }
 
       div.loading {
         position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        top: 0; bottom: 0; left: 0; right: 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         pointer-events: none;
       }
-      div.loading > * {
-        padding: 10px;
-        margin: 10px;
-      }
+      div.loading > * { padding: 10px; margin: 10px; }
 
-      .output-container {
-        text-align: center;
-        margin-top: auto;
-      }
+      .output-container { text-align: center; margin-top: auto; }
       .output-button {
-        border: none;
-        width: 200px;
-        height: 25px;
-        margin: 5px;
-        border-radius: 5px;
-        cursor: pointer;
-        background-color: black;
-        color: white;
-        outline-color: #20c20e;
-        outline-style: dashed;
-        font-family: "Lucida Console", Monaco, monospace;
+        border: none; width: 200px; height: 25px; margin: 5px;
+        border-radius: 5px; cursor: pointer; background-color: black; color: white;
+        outline-color: #20c20e; outline-style: dashed; font-family: "Lucida Console", Monaco, monospace;
       }
-
       #output {
-        display: none;
-        height: 200px;
-        background-color: black;
-        color: white;
-        font-family: "Lucida Console", Monaco, monospace;
-        outline: none;
-        border: none;
-        padding: 0;
-        width: 100%;
+        display: none; height: 200px; background-color: black; color: white;
+        font-family: "Lucida Console", Monaco, monospace; outline: none; border: none; padding: 0; width: 100%;
       }
 
       #message-container {
-        display: none;
-        min-height: 50px;
-        background-color: rgba(20, 20, 20, 0.5);
-        outline: none;
-        border: none;
-        padding: 0;
-        width: 100%;
-        position: absolute;
-        top: 0;
+        display: none; min-height: 50px; background-color: rgba(20, 20, 20, 0.5);
+        outline: none; border: none; padding: 0; width: 100%; position: absolute; top: 0;
       }
+      #messages { margin-left: 50px; color: white; font-family: "Lucida Console", Monaco, monospace; outline: none; border: none; padding: 0; }
 
-      #messages {
-        margin-left: 50px;
-        color: white;
-        font-family: "Lucida Console", Monaco, monospace;
-        outline: none;
-        border: none;
-        padding: 0;
-      }
-
-      img.qrCode {
-        opacity: 1.0;
-        width: 50%;
-        height: 50%;
-      }
+      img.qrCode { opacity: 1.0; width: 50%; height: 50%; }
 
       #pauseMenuContainer {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        position: absolute; top: 0; bottom: 0; left: 0; right: 0;
+        display: flex; justify-content: center; align-items: center;
       }
-
-      #pauseMenuContainer[hidden] {
-        display: none !important;
-        opacity: 0;
-      }
+      #pauseMenuContainer[hidden] { display: none !important; opacity: 0; }
 
       #pauseMenuBorder {
         background: linear-gradient(135deg, #FA1E4E, transparent 40%);
-        padding: 1px;
-        border-radius: 4px;
+        padding: 1px; border-radius: 4px;
         clip-path: polygon(10.5px 0, 100% 0, 100% 100%, 0 100%, 0 10.5px);
-        width: 70vw;
-        max-width: 400px;
+        width: 70vw; max-width: 400px;
       }
-
       #pauseMenu {
-        display: flex;
-        flex-direction: column;
-        padding: 60px 30px 60px 30px;
+        display: flex; flex-direction: column; padding: 60px 30px 60px 30px;
         background: linear-gradient(180deg, #2E273F 16.15%, rgba(46, 39, 63, 0.79) 56.25%, #2E273F 91.15%);
         border-radius: 4px;
         clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-        animation-name: fadeIn;
-        animation-duration: 0.5s;
-        opacity: 1;
+        animation-name: fadeIn; animation-duration: 0.5s; opacity: 1;
       }
-
       #pauseMenu button {
-        font-weight: 500;
-        font-size: 17px;
-        color: white;
-        background: #FA1E4E;
-        border: 1px solid #FA1E4E;
-        border-radius: 6px;
-        padding: 12px 24px;
-        margin: 5px 0;
-        -webkit-user-select: none;
-        user-select: none;
+        font-weight: 500; font-size: 17px; color: white; background: #FA1E4E;
+        border: 1px solid #FA1E4E; border-radius: 6px; padding: 12px 24px; margin: 5px 0;
+        -webkit-user-select: none; user-select: none;
       }
-
-      #pauseMenu button#quitButton {
-        background: #FA1E4E40;
-      }
-
-      #pauseMenu button:hover {
-        filter: brightness(1.15);
-      }
-
-      #pauseMenu button:active {
-        filter: brightness(0.85);
-      }
-
-      #pauseMenu button[hidden] {
-        display: none;
-      }
+      #pauseMenu button#quitButton { background: #FA1E4E40; }
+      #pauseMenu button:hover { filter: brightness(1.15); }
+      #pauseMenu button:active { filter: brightness(0.85); }
+      #pauseMenu button[hidden] { display: none; }
     </style>
   </head>
   <body>
-    <canvas
-      class="emscripten"
-      id="canvas"
-      oncontextmenu="event.preventDefault()"
-      tabindex="-1">
-    </canvas>
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
 
     <div id="pauseMenuContainer" hidden>
       <div id="pauseMenuBorder">
@@ -296,12 +143,31 @@
     </div>
 
     <script>
-      // make canvas resize properly including fullscreen
       const canvas = document.getElementById('canvas');
+
       function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        const targetRatio = 4 / 3;
+
+        let newWidth = windowWidth;
+        let newHeight = windowWidth / targetRatio;
+
+        if (newHeight > windowHeight) {
+          newHeight = windowHeight;
+          newWidth = newHeight * targetRatio;
+        }
+
+        canvas.style.width = newWidth + 'px';
+        canvas.style.height = newHeight + 'px';
+        canvas.style.position = 'absolute';
+        canvas.style.left = (windowWidth - newWidth) / 2 + 'px';
+        canvas.style.top = (windowHeight - newHeight) / 2 + 'px';
+
+        canvas.width = newWidth;
+        canvas.height = newHeight;
       }
+
       window.addEventListener('resize', resizeCanvas);
       document.addEventListener('fullscreenchange', resizeCanvas);
       resizeCanvas();
@@ -316,7 +182,7 @@
               resolve(mergedFileUrl);
               return;
             }
-            fetch(fileParts[index]).then((response) => response.arrayBuffer()).then((data) => {
+            fetch(fileParts[index]).then(res => res.arrayBuffer()).then(data => {
               buffers.push(data);
               fetchPart(index + 1);
             }).catch(reject);
@@ -327,33 +193,27 @@
 
       function getParts(file, start, end) {
         let parts = [];
-        for (let i = start; i <= end; i++) {
-          parts.push(file + ".part" + i);
-        }
+        for (let i = start; i <= end; i++) parts.push(file + ".part" + i);
         return parts;
       }
 
-      mergeFiles(getParts("game.unx", 1, 12)).then(async url => {
+      mergeFiles(getParts("game.unx", 1, 12)).then(url => {
         window.gameUnxUrl = url;
 
         const originalFetch = window.fetch;
         window.fetch = async function (...args) {
           let [url, options] = args;
-          if (typeof url === 'string' && url.includes("game.unx")) {
-            url = window.gameUnxUrl;
-          } else if (url instanceof Request && url.url.includes("game.unx")) {
-            url = new Request(window.gameUnxUrl, url);
-          }
+          if (typeof url === 'string' && url.includes("game.unx")) url = window.gameUnxUrl;
+          else if (url instanceof Request && url.url.includes("game.unx")) url = new Request(window.gameUnxUrl, url);
           return originalFetch.call(this, url, options);
         };
 
         const originalOpen = XMLHttpRequest.prototype.open;
         XMLHttpRequest.prototype.open = function (method, url, ...rest) {
-          if (url.includes("game.unx")) {
-            url = window.gameUnxUrl;
-          }
+          if (url.includes("game.unx")) url = window.gameUnxUrl;
           return originalOpen.call(this, method, url, ...rest);
         };
+
         let index = document.createElement("script");
         index.src = "index.js";
         document.body.appendChild(index);
@@ -361,9 +221,7 @@
         let runner = document.createElement("script");
         runner.src = "runner.js";
         document.body.appendChild(runner);
-      }).catch(error => {
-        console.error("Failed to merge files:", error);
-      });
+      }).catch(error => console.error("Failed to merge files:", error));
     </script>
   </body>
 </html>
