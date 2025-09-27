@@ -118,28 +118,40 @@
     <script>
       const canvas = document.getElementById('canvas');
 
-      function resizeCanvas() {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        const targetRatio = 4/3;
+function resizeCanvas() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const targetRatio = 4/3;
 
-        let newWidth = w;
-        let newHeight = w / targetRatio;
+  let newWidth, newHeight;
 
-        if(newHeight > h) {
-          newHeight = h;
-          newWidth = newHeight * targetRatio;
-        }
+  if (w / h > targetRatio) {
+    // Window is wider than 4:3
+    newHeight = h;
+    newWidth = h * targetRatio;
+  } else {
+    // Window is taller than 4:3
+    newWidth = w;
+    newHeight = w / targetRatio;
+  }
 
-        canvas.style.width = newWidth + 'px';
-        canvas.style.height = newHeight + 'px';
-        canvas.style.position = 'absolute';
-        canvas.style.left = (w - newWidth)/2 + 'px';
-        canvas.style.top = (h - newHeight)/2 + 'px';
+  // Round to integers to prevent blurry rendering
+  newWidth = Math.floor(newWidth);
+  newHeight = Math.floor(newHeight);
 
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-      }
+  canvas.style.width = newWidth + 'px';
+  canvas.style.height = newHeight + 'px';
+  canvas.style.position = 'absolute';
+  canvas.style.left = Math.floor((w - newWidth) / 2) + 'px';
+  canvas.style.top = Math.floor((h - newHeight) / 2) + 'px';
+
+  // Only set the internal canvas resolution if different from current
+  if (canvas.width !== newWidth || canvas.height !== newHeight) {
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+  }
+}
+
 
       window.addEventListener('resize', resizeCanvas);
       document.addEventListener('fullscreenchange', resizeCanvas);
