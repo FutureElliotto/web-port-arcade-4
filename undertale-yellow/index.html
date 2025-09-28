@@ -223,5 +223,53 @@
         document.body.appendChild(runner);
       }).catch(error => console.error("Failed to merge files:", error));
     </script>
+<script>
+  const canvas = document.getElementById('canvas');
+
+  function resizeCanvas() {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const targetRatio = 4 / 3;
+
+    let newWidth = windowWidth;
+    let newHeight = windowWidth / targetRatio;
+
+    if (newHeight > windowHeight) {
+      newHeight = windowHeight;
+      newWidth = newHeight * targetRatio;
+    }
+
+    canvas.style.width = newWidth + 'px';
+    canvas.style.height = newHeight + 'px';
+    canvas.style.position = 'absolute';
+    canvas.style.left = (windowWidth - newWidth) / 2 + 'px';
+    canvas.style.top = (windowHeight - newHeight) / 2 + 'px';
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  document.addEventListener('fullscreenchange', () => {
+    resizeCanvas();
+    // Re-focus the canvas when fullscreen changes
+    setTimeout(() => canvas.focus(), 0);
+  });
+
+  // Also catch browser vendor prefixes just in case
+  document.addEventListener('webkitfullscreenchange', () => setTimeout(() => canvas.focus(), 0));
+  document.addEventListener('mozfullscreenchange', () => setTimeout(() => canvas.focus(), 0));
+  document.addEventListener('MSFullscreenChange', () => setTimeout(() => canvas.focus(), 0));
+
+  resizeCanvas();
+
+  // (Optional) Request pointer lock on click so mouse/gamepad continues to work
+  canvas.addEventListener('click', () => {
+    if (document.fullscreenElement === canvas || document.fullscreenElement === document.body) {
+      canvas.requestPointerLock?.();
+    }
+  });
+</script>
+
   </body>
 </html>
