@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <base href="https://cdn.jsdelivr.net/gh/genizy/web-port@e4050217850b6643fd327fb94d5ee85843a1640d/deltarune/chapter1/">
+    <base href="https://cdn.jsdelivr.net/gh/FutureElliotto/web-port-arcade-4/deltarune/chapter1/">
     <script>
       // better debugging for me
       const ogalert = window.alert;
@@ -474,9 +474,6 @@
 			  // below are custom
 			  // stops loading text on game run
 			  loadprogress += 1;
-              // This Forces 1920x1080 aspect ratio on game startup
-              canvas.width = 1920;
-              canvas.height = 1080;
 
 			  // TRUE END of custom shit
             }
@@ -557,7 +554,41 @@
           Module['arguments'] = [];
         }
       }
-	
+  function ensureAspectRatio() {
+    if (!canvasElement) return;
+
+    const targetRatio = 4 / 3;
+    const maxWidth  = window.innerWidth;
+    const maxHeight = window.innerHeight;
+
+    // start with full width, then adjust
+    let newWidth  = maxWidth;
+    let newHeight = Math.floor(newWidth / targetRatio);
+
+    // if height overflows screen, recalc based on height
+    if (newHeight > maxHeight) {
+      newHeight = maxHeight;
+      newWidth  = Math.floor(newHeight * targetRatio);
+    }
+
+    // set canvas size
+    canvasElement.width  = newWidth;
+    canvasElement.height = newHeight;
+
+    // style canvas (CSS pixels)
+    canvasElement.style.width  = newWidth + 'px';
+    canvasElement.style.height = newHeight + 'px';
+
+    // center it
+    canvasElement.style.position = 'absolute';
+    canvasElement.style.top  = ((maxHeight - newHeight) / 2) + 'px';
+    canvasElement.style.left = ((maxWidth  - newWidth ) / 2) + 'px';
+  }
+
+  // run on load and resize/fullscreen
+  window.addEventListener('load', ensureAspectRatio);
+  window.addEventListener('resize', ensureAspectRatio);
+  document.addEventListener('fullscreenchange', ensureAspectRatio);
 
 		// Enable FPS Counter Button
 	  var stopfps = 0;
@@ -1370,6 +1401,7 @@
         lockOrientationIfSupported();
       });
     </script>
+
 	<!-- Load Main Game Runner JS File -->
     <script async type="text/javascript" src="runner.js"></script>
   </body>
