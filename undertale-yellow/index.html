@@ -269,6 +269,62 @@
       canvas.requestPointerLock?.();
     }
   });
+  const canvas = document.getElementById('canvas');
+
+  function resizeCanvas() {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const targetRatio = 4 / 3;
+
+    let newWidth = windowWidth;
+    let newHeight = windowWidth / targetRatio;
+
+    if (newHeight > windowHeight) {
+      newHeight = windowHeight;
+      newWidth = newHeight * targetRatio;
+    }
+
+    canvas.style.width = newWidth + 'px';
+    canvas.style.height = newHeight + 'px';
+    canvas.style.position = 'absolute';
+    canvas.style.left = (windowWidth - newWidth) / 2 + 'px';
+    canvas.style.top = (windowHeight - newHeight) / 2 + 'px';
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+
+  // Re-focus canvas when entering/exiting fullscreen
+  function refocusCanvas() {
+    resizeCanvas();
+    setTimeout(() => canvas.focus(), 0);
+  }
+
+  document.addEventListener('fullscreenchange', refocusCanvas);
+  document.addEventListener('webkitfullscreenchange', refocusCanvas);
+  document.addEventListener('mozfullscreenchange', refocusCanvas);
+  document.addEventListener('MSFullscreenChange', refocusCanvas);
+
+  // Request pointer lock on click so mouse/gamepad continue working
+  canvas.addEventListener('click', () => {
+    // focus for keyboard
+    canvas.focus();
+    if (document.fullscreenElement) {
+      canvas.requestPointerLock?.();
+    }
+  });
+
+  // fallback: listen for keyboard globally
+  window.addEventListener('keydown', (e) => {
+    // forward key events to your game code
+    // Example: Module._handleKey(e.keyCode); 
+  });
+
+  resizeCanvas();
+  // Initial focus
+  canvas.focus();
 </script>
 
   </body>
